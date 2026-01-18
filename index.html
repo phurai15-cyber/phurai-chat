@@ -10,15 +10,20 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; margin: 0; overflow: hidden; }
-        .header { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; }
-        .user-list { padding: 10px; background: #111; border-bottom: 1px solid #222; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
-        .u-img { width: 55px; height: 55px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; font-size: 20px; border: 2px solid transparent; }
-        .active-user { border-color: #fff; }
-        .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 14px; }
-        .sent { background: #0084ff; align-self: flex-end; }
-        .recv { background: #333; align-self: flex-start; }
-        .footer { padding: 10px; border-top: 1px solid #222; display: flex; align-items: center; gap: 10px; background: #000; }
+        .header { padding: 12px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: #000; }
+        .user-list-container { padding: 10px; background: #000; border-bottom: 1px solid #222; }
+        .user-list { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
+        .u-item { display: flex; flex-direction: column; align-items: center; min-width: 65px; cursor: pointer; }
+        .u-img { width: 55px; height: 55px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; border: 2px solid transparent; transition: 0.3s; }
+        .active-user .u-img { border-color: #fff; transform: scale(1.1); }
+        .online-dot { width: 12px; height: 12px; background: #31a24c; border-radius: 50%; border: 2px solid #000; position: absolute; bottom: 18px; right: 5px; }
+        .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #000; }
+        .msg-wrap { display: flex; flex-direction: column; max-width: 75%; }
+        .msg { padding: 10px 15px; border-radius: 18px; font-size: 14px; position: relative; }
+        .sent { background: #0084ff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .recv { background: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .sender-name { font-size: 10px; color: #aaa; margin-bottom: 2px; padding: 0 5px; }
+        .footer { padding: 10px; border-top: 1px solid #222; display: flex; align-items: center; gap: 12px; background: #000; }
         #login-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         input { background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; width: 100%; max-width: 300px; text-align: center; margin-bottom: 10px; outline: none; }
     </style>
@@ -42,20 +47,24 @@
 <div class="header">
     <div class="flex items-center gap-2">
         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">P</div>
-        <div><h2 id="chatTitle" class="text-sm font-bold">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold">ACTIVE NOW</p></div>
+        <div><h2 id="chatTitle" class="text-sm font-bold">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold uppercase tracking-widest">Active Now</p></div>
     </div>
     <button onclick="navigator.clipboard.writeText(window.location.href); alert('লিঙ্ক কপি হয়েছে!')" class="bg-blue-600 px-4 py-1 rounded-full text-[10px] font-bold">বন্ধুকে দিন</button>
 </div>
 
-<div id="uList" class="user-list"></div>
+<div class="user-list-container">
+    <div id="uList" class="user-list">
+        </div>
+</div>
+
 <div id="cBox" class="chat-box"></div>
 
 <div class="footer">
-    <span class="text-blue-500 text-2xl">➕</span>
-    <span class="text-blue-500 text-2xl">📷</span>
-    <span class="text-blue-500 text-2xl">🖼️</span>
-    <span class="text-blue-500 text-2xl">🎙️</span>
-    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; width:100%; color:white;"></div>
+    <span class="text-blue-500 text-2xl cursor-pointer">➕</span>
+    <span class="text-blue-500 text-2xl cursor-pointer">📷</span>
+    <span class="text-blue-500 text-2xl cursor-pointer">🖼️</span>
+    <span class="text-blue-500 text-2xl cursor-pointer">🎙️</span>
+    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; width:100%; color:white; margin:0; padding:0; text-align:left;"></div>
     <button onclick="sendMsg('➤')" class="text-blue-500 font-bold text-2xl">➤</button>
     <button onclick="sendMsg('👍')" class="text-3xl">👍</button>
 </div>
@@ -97,10 +106,11 @@
     function loadUsers() {
         db.collection("u").onSnapshot(s => {
             const list = document.getElementById('uList');
-            list.innerHTML = `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="u-img ${targetP=='group'?'active-user':''}">G</div><span class="text-[10px] mt-1 font-bold">গ্রুপ</span></div>`;
+            list.innerHTML = `<div class="u-item ${targetP=='group'?'active-user':''}" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="relative"><div class="u-img">G</div></div><span class="text-[10px] mt-1 font-bold">গ্রুপ</span></div>`;
             s.forEach(d => {
                 const u = d.data(); if(u.p === myP) return;
-                list.innerHTML += `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('${u.p}', '${u.n}')"><div class="u-img ${targetP==u.p?'active-user':''}">P</div><span class="text-[10px] mt-1 font-bold">${u.n}</span></div>`;
+                const isOnline = (Date.now() - u.l) < 30000;
+                list.innerHTML += `<div class="u-item ${targetP==u.p?'active-user':''}" onclick="setChat('${u.p}', '${u.n}')"><div class="relative"><div class="u-img">${u.n[0]}</div>${isOnline?'<div class="online-dot"></div>':''}</div><span class="text-[10px] mt-1 font-bold">${u.n}</span></div>`;
             });
         });
     }
@@ -118,7 +128,9 @@
             s.forEach(d => {
                 const x = d.data();
                 const isForMe = (targetP === 'group' && x.t === 'group') || (x.f === myP && x.t === targetP) || (x.f === targetP && x.t === myP);
-                if(isForMe) { b.innerHTML += `<div class="flex flex-col ${x.f===myP?'items-end':'items-start'}"><span class="text-[9px] text-gray-500 mb-1">${x.fn}</span><div class="msg ${x.f===myP?'sent':'recv'}">${x.m}</div></div>`; }
+                if(isForMe) { 
+                    b.innerHTML += `<div class="msg-wrap ${x.f===myP?'items-end':'items-start'}"><span class="sender-name">${x.f===myP?'আপনি':x.fn}</span><div class="msg ${x.f===myP?'sent':'recv'}">${x.m}</div></div>`; 
+                }
             });
             b.scrollTop = b.scrollHeight;
         });
