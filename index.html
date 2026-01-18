@@ -2,37 +2,34 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PHURAI CHAT PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .box { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #333; width: 90%; max-width: 350px; text-align: center; }
-        input { background: #222; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 15px; text-align: center; outline: none; }
+        body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; margin: 0; overflow: hidden; }
+        .box { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #333; width: 90%; max-width: 320px; text-align: center; margin-top: 50px; }
+        input { background: #222; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 10px; text-align: center; outline: none; }
         button { background: #0084ff; color: white; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; }
     </style>
-</head>
-<body>
-
+</head><body>
+<center>
 <div class="box" id="loginBox">
-    <h1 class="text-2xl font-bold text-blue-500 mb-6">PHURAI MAX</h1>
+    <h1 class="text-2xl font-bold text-blue-500 mb-6 italic">PHURAI MAX</h1>
     <div id="step1">
         <input id="phone" type="tel" placeholder="+88017XXXXXXXX">
         <div id="recaptcha-container"></div>
         <button onclick="sendOTP()">কোড পাঠান</button>
     </div>
     <div id="step2" class="hidden">
-        <input id="otp" type="number" placeholder="ওটিপি কোড দিন">
+        <input id="otp" type="number" placeholder="কোড দিন">
         <input id="name" type="text" placeholder="আপনার নাম">
         <button onclick="verifyOTP()" style="background: #28a745;">লগইন করুন</button>
     </div>
 </div>
-
-<script>
-    // আপনার আসল ফায়ারবেস তথ্য
+</center><script>
     const firebaseConfig = {
         apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c",
         authDomain: "phurai-3a289.firebaseapp.com",
@@ -47,7 +44,7 @@
 
     function sendOTP() {
         const ph = document.getElementById('phone').value;
-        if(!ph.startsWith('+')) return alert("নম্বর +88 দিয়ে শুরু করুন");
+        if(!ph.startsWith('+88')) return alert("নম্বর +88 দিয়ে শুরু করুন");
         auth.signInWithPhoneNumber(ph, window.recaptchaVerifier).then(res => {
             window.confirmationResult = res;
             document.getElementById('step1').classList.add('hidden');
@@ -57,10 +54,8 @@
 
     function verifyOTP() {
         const code = document.getElementById('otp').value;
-        const name = document.getElementById('name').value;
         window.confirmationResult.confirm(code).then(() => {
-            alert("সফলভাবে লগইন হয়েছে, " + name);
-            location.reload();
+            alert("সফল!"); location.reload();
         }).catch(() => alert("ভুল কোড!"));
     }
 </script>
