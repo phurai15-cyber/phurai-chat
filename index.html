@@ -10,25 +10,40 @@
     <style>
         :root { --bg: #000000; --panel: #121212; --primary: #0084ff; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; height: 100dvh; margin: 0; display: flex; flex-direction: column; overflow: hidden; }
-        .header { padding: 12px 16px; background: rgba(18, 18, 18, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #222; }
+        
+        /* হেডার এবং ইউজার লিস্ট */
+        .header { padding: 12px 16px; background: rgba(18, 18, 18, 0.9); border-bottom: 1px solid #222; }
         .user-list { display: flex; gap: 14px; overflow-x: auto; padding: 12px; background: var(--panel); border-bottom: 1px solid #222; scrollbar-width: none; }
         .user-avatar-wrapper { flex-shrink: 0; text-align: center; width: 65px; cursor: pointer; }
         .user-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #0084ff, #00c6ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; margin: 0 auto; font-weight: bold; font-size: 18px; }
-        .chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background: #000; padding-bottom: 100px; }
-        .msg { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 15px; position: relative; }
+
+        /* চ্যাট এরিয়া - নিচে বেশি জায়গা রাখা হয়েছে */
+        .chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background: #000; padding-bottom: 120px; }
+        .msg { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 15px; }
         .sent { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
         .received { background: #262629; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #333; }
-        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #121212; padding: 10px 10px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid #222; }
-        .input-box { display: flex; align-items: center; gap: 10px; background: #1c1c1e; border-radius: 30px; padding: 4px 12px; max-width: 500px; margin: 0 auto; }
-        .msg-input { flex: 1; background: transparent; border: none; outline: none; color: white; height: 42px; font-size: 16px; }
+
+        /* আপনার লাল চিহ্নিত স্থানে ইনপুট বক্সটি ফিক্সড করা হয়েছে */
+        .bottom-bar { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: #000; /* স্ক্রিনের সাথে মিলিয়ে কালো রাখা হয়েছে */
+            padding: 10px 15px calc(25px + env(safe-area-inset-bottom)); /* আপনার লাল দাগের উচ্চতা অনুযায়ী নিচে জায়গা বাড়ানো হয়েছে */
+            z-index: 100;
+        }
+        .input-box { display: flex; align-items: center; gap: 10px; background: #1c1c1e; border-radius: 30px; padding: 4px 15px; max-width: 500px; margin: 0 auto; border: 1px solid #333; }
+        .msg-input { flex: 1; background: transparent; border: none; outline: none; color: white; height: 45px; font-size: 16px; }
+
         #login-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
     </style>
 </head>
 <body>
     <div id="login-overlay">
-        <h1 class="text-3xl font-black mb-6 text-blue-500">PHURAI CHAT</h1>
-        <input id="phoneInput" type="tel" placeholder="আপনার ফোন নম্বর" class="w-full max-w-xs bg-[#121212] p-4 rounded-xl border border-gray-800 text-center mb-4 text-white outline-none">
-        <input id="nameInput" type="text" placeholder="আপনার নাম লিখুন (যেমন: ফরিদ)" class="w-full max-w-xs bg-[#121212] p-4 rounded-xl border border-gray-800 text-center mb-6 text-white outline-none">
+        <h1 class="text-3xl font-black mb-6 text-blue-500 italic">PHURAI CHAT</h1>
+        <input id="phoneInput" type="tel" placeholder="আপনার ফোন নম্বর" class="w-full max-w-xs bg-[#121212] p-4 rounded-xl border border-gray-800 text-center mb-4 text-white">
+        <input id="nameInput" type="text" placeholder="আপনার নাম লিখুন" class="w-full max-w-xs bg-[#121212] p-4 rounded-xl border border-gray-800 text-center mb-6 text-white">
         <button onclick="saveLogin()" class="w-full max-w-xs bg-blue-600 p-4 rounded-xl font-bold text-lg">শুরু করুন</button>
     </div>
 
@@ -37,7 +52,7 @@
             <h2 class="text-lg font-black text-blue-500">PHURAI</h2>
             <div id="chatting-with-name" class="text-sm font-bold text-white">চ্যাট সিলেক্ট করুন</div>
         </div>
-        <button onclick="localStorage.clear(); location.reload();" class="text-[10px] text-gray-500">LOGOUT</button>
+        <button onclick="localStorage.clear(); location.reload();" class="text-[10px] text-gray-500 border border-gray-800 px-2 py-1 rounded">নতুন আইডি</button>
     </div>
     
     <div id="user-list" class="user-list"></div>
@@ -45,8 +60,8 @@
 
     <div class="bottom-bar">
         <div class="input-box">
-            <input id="msgInput" type="text" placeholder="মেসেজ লিখুন..." class="msg-input" autocomplete="off">
-            <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center">
+            <input id="msgInput" type="text" placeholder="এখানে লিখুন..." class="msg-input" autocomplete="off">
+            <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-90">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
             </button>
         </div>
@@ -88,8 +103,8 @@
                     if(u.phone !== myPhone) {
                         list.innerHTML += `
                         <div class="user-avatar-wrapper" onclick="startChat('${u.phone}', '${u.name}')">
-                            <div class="user-avatar">${u.name.charAt(0).toUpperCase()}</div>
-                            <div class="text-[10px] text-gray-300 mt-1 truncate">${u.name}</div>
+                            <div class="user-avatar">${u.name ? u.name.charAt(0).toUpperCase() : '?'}</div>
+                            <div class="text-[10px] text-gray-400 mt-1 truncate px-1">${u.name || 'Unknown'}</div>
                         </div>`;
                     }
                 });
@@ -123,6 +138,7 @@
                 box.scrollTop = box.scrollHeight;
             });
         }
+        document.getElementById('msgInput').addEventListener('keypress', e => { if(e.key === 'Enter') sendMsg(); });
     </script>
 </body>
-</html>
+                                                                                                                                                          </html>
