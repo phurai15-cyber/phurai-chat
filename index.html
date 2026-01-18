@@ -2,69 +2,37 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHURAI CHAT PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        body { background: #0b0e11; color: #e9edef; font-family: 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; margin: 0; overflow: hidden; }
-        .header { padding: 15px; background: #202c33; border-bottom: 1px solid #374045; display: flex; align-items: center; justify-content: space-between; }
-        .user-list { display: flex; gap: 12px; overflow-x: auto; padding: 10px; background: #111b21; border-bottom: 1px solid #222; scrollbar-width: none; }
-        .u-item { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; position: relative; }
-        .u-img { width: 50px; height: 50px; background: #00a884; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid transparent; }
-        .active-user .u-img { border-color: #00a884; transform: scale(1.05); }
-        .online-dot { width: 12px; height: 12px; background: #1fa855; border-radius: 50%; border: 2px solid #111b21; position: absolute; bottom: 18px; right: 12px; }
-        .chat-box { flex: 1; overflow-y: auto; padding: 20px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-attachment: fixed; display: flex; flex-direction: column; gap: 8px; }
-        .msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 15px; position: relative; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); }
-        .sent { background: #005c4b; align-self: flex-end; border-top-right-radius: 0; }
-        .recv { background: #202c33; align-self: flex-start; border-top-left-radius: 0; }
-        .sender-n { font-size: 11px; color: #8696a0; margin-bottom: 2px; }
-        .footer { padding: 10px; background: #202c33; display: flex; align-items: center; gap: 10px; }
-        #login-screen { position: fixed; inset: 0; background: #111b21; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        input { background: #2a3942; border: none; color: #d1d7db; padding: 12px 15px; border-radius: 8px; width: 100%; max-width: 320px; outline: none; margin-bottom: 10px; }
-        .btn { background: #00a884; color: #111b21; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; max-width: 320px; transition: 0.3s; }
-        #typing-info { font-size: 11px; color: #00a884; height: 15px; margin-left: 20px; }
+        body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .box { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #333; width: 90%; max-width: 350px; text-align: center; }
+        input { background: #222; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 15px; text-align: center; outline: none; }
+        button { background: #0084ff; color: white; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <h1 class="text-3xl font-bold text-[#00a884] mb-6">PHURAI MAX PRO</h1>
-    <div id="step1" class="w-full flex flex-col items-center">
-        <input id="phoneNum" type="tel" placeholder="+88017XXXXXXXX">
+<div class="box" id="loginBox">
+    <h1 class="text-2xl font-bold text-blue-500 mb-6">PHURAI MAX</h1>
+    <div id="step1">
+        <input id="phone" type="tel" placeholder="+88017XXXXXXXX">
         <div id="recaptcha-container"></div>
-        <button onclick="sendOTP()" class="btn">ওটিপি কোড পাঠান</button>
+        <button onclick="sendOTP()">কোড পাঠান</button>
     </div>
-    <div id="step2" class="w-full flex flex-col items-center hidden">
-        <input id="otpCode" type="number" placeholder="৬ সংখ্যার কোড">
-        <input id="userName" type="text" placeholder="আপনার পুরো নাম">
-        <button onclick="verifyOTP()" class="btn">লগইন করুন</button>
+    <div id="step2" class="hidden">
+        <input id="otp" type="number" placeholder="ওটিপি কোড দিন">
+        <input id="name" type="text" placeholder="আপনার নাম">
+        <button onclick="verifyOTP()" style="background: #28a745;">লগইন করুন</button>
     </div>
-</div>
-
-<div class="header">
-    <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center font-bold">P</div>
-        <div>
-            <h2 id="chatTitle" class="text-sm font-bold">গ্রুপ চ্যাট</h2>
-            <div id="typing-info"></div>
-        </div>
-    </div>
-    <button onclick="logout()" class="text-xs text-red-400 font-bold">LOGOUT</button>
-</div>
-
-<div id="uList" class="user-list"></div>
-<div id="cBox" class="chat-box"></div>
-
-<div class="footer">
-    <input id="mIn" type="text" placeholder="মেসেজ লিখুন..." oninput="handleTyping()">
-    <button onclick="sendMsg('➤')" class="text-[#8696a0] text-2xl">➤</button>
 </div>
 
 <script>
-    // ফরিদ ভাই, এখানে আপনার অরিজিনাল ফায়ারবেস তথ্য সেট করা হয়েছে
+    // আপনার আসল ফায়ারবেস তথ্য
     const firebaseConfig = {
         apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c",
         authDomain: "phurai-3a289.firebaseapp.com",
@@ -74,83 +42,27 @@
         appId: "1:841766177401:web:8f41f0ddf9"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(); const db = firebase.firestore();
-    let confirmationResult, myP = localStorage.getItem("p"), myN = localStorage.getItem("n"), targetP = "group";
-
-    if(myP && myN) { document.getElementById('login-screen').style.display='none'; startApp(); }
+    const auth = firebase.auth();
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
 
     function sendOTP() {
-        const ph = document.getElementById('phoneNum').value;
-        if(!ph.startsWith('+88')) return alert("দেশের কোড (+88) ব্যবহার করুন");
+        const ph = document.getElementById('phone').value;
+        if(!ph.startsWith('+')) return alert("নম্বর +88 দিয়ে শুরু করুন");
         auth.signInWithPhoneNumber(ph, window.recaptchaVerifier).then(res => {
-            confirmationResult = res;
+            window.confirmationResult = res;
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
         }).catch(err => alert("এরর: " + err.message));
     }
 
     function verifyOTP() {
-        const code = document.getElementById('otpCode').value, name = document.getElementById('userName').value;
-        if(!name) return alert("নাম দিতেই হবে");
-        confirmationResult.confirm(code).then(result => {
-            localStorage.setItem("p", result.user.phoneNumber); localStorage.setItem("n", name);
-            db.collection("u").doc(result.user.phoneNumber).set({n: name, p: result.user.phoneNumber, l: Date.now(), t: false});
+        const code = document.getElementById('otp').value;
+        const name = document.getElementById('name').value;
+        window.confirmationResult.confirm(code).then(() => {
+            alert("সফলভাবে লগইন হয়েছে, " + name);
             location.reload();
-        }).catch(() => alert("কোডটি ভুল হয়েছে"));
+        }).catch(() => alert("ভুল কোড!"));
     }
-
-    function startApp() {
-        setInterval(() => db.collection("u").doc(myP).update({l: Date.now()}), 10000);
-        loadUsers(); loadMessages(); listenTyping();
-    }
-
-    function handleTyping() {
-        db.collection("u").doc(myP).update({t: document.getElementById('mIn').value.length > 0});
-        setTimeout(() => db.collection("u").doc(myP).update({t: false}), 3000);
-    }
-
-    function listenTyping() {
-        db.collection("u").onSnapshot(s => {
-            let typers = [];
-            s.forEach(d => { if(d.id !== myP && d.data().t) typers.push(d.data().n); });
-            document.getElementById('typing-info').innerText = typers.length > 0 ? typers.join(', ') + " লিখছে..." : "";
-        });
-    }
-
-    function loadUsers() {
-        db.collection("u").onSnapshot(s => {
-            const list = document.getElementById('uList');
-            list.innerHTML = `<div class="u-item ${targetP=='group'?'active-user':''}" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="u-img">G</div><span class="text-[10px] mt-1">গ্রুপ</span></div>`;
-            s.forEach(d => {
-                const u = d.data(); if(u.p === myP) return;
-                const isOnline = (Date.now() - u.l) < 40000;
-                list.innerHTML += `<div class="u-item ${targetP==u.p?'active-user':''}" onclick="setChat('${u.p}', '${u.n}')"><div class="u-img">${u.n[0]}</div>${isOnline?'<div class="online-dot"></div>':''}<span class="text-[10px] mt-1">${u.n}</span></div>`;
-            });
-        });
-    }
-
-    function setChat(p, n) { targetP = p; document.getElementById('chatTitle').innerText = n; loadMessages(); }
-
-    function sendMsg(t) {
-        const i = document.getElementById('mIn'), txt = i.value;
-        if(txt) { db.collection("m").add({ f: myP, fn: myN, t: targetP, m: txt, ts: Date.now() }); i.value=""; db.collection("u").doc(myP).update({t: false}); }
-    }
-
-    function loadMessages() {
-        db.collection("m").orderBy("ts", "asc").limitToLast(50).onSnapshot(s => {
-            const b = document.getElementById('cBox'); b.innerHTML = "";
-            s.forEach(d => {
-                const x = d.data();
-                if((targetP === 'group' && x.t === 'group') || (x.f === myP && x.t === targetP) || (x.f === targetP && x.t === myP)) {
-                    b.innerHTML += `<div class="flex flex-col ${x.f===myP?'items-end':'items-start'}"><span class="sender-n">${x.f===myP?'আপনি':x.fn}</span><div class="msg ${x.f===myP?'sent':'recv'}">${x.m}</div></div>`;
-                }
-            });
-            b.scrollTop = b.scrollHeight;
-        });
-    }
-
-    function logout() { localStorage.clear(); location.reload(); }
 </script>
 </body>
-    </html>
+</html>
