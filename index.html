@@ -2,119 +2,112 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>PHURAI MESSENGER PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PHURAI CHAT PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --messenger-blue: #0084ff; --bg-black: #000000; --input-bg: #242526; }
-        body { background: var(--bg-black); color: white; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; margin: 0; }
-        .header { padding: 12px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: #000; }
-        .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 110px; }
-        .msg { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 15px; position: relative; }
-        .sent { background: var(--messenger-blue); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .recv { background: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .sender-name { font-size: 10px; color: #aaa; margin-bottom: 2px; }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #000; padding: 10px 12px calc(20px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; border-top: 1px solid #222; }
-        .icon-btn { color: var(--messenger-blue); font-size: 22px; }
-        .input-wrap { flex: 1; background: var(--input-bg); border-radius: 25px; display: flex; align-items: center; padding: 0 15px; height: 42px; }
-        .m-in { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 16px; }
-        #login { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; }
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+        .header { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; }
+        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .user-list { padding: 10px; border-bottom: 1px solid #222; max-height: 150px; overflow-y: auto; background: #111; display: none; }
+        .u-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #444; }
+        .online { background: #22c55e !important; }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 20px; font-size: 14px; position: relative; }
+        .sent { background: #0084ff; align-self: flex-end; }
+        .recv { background: #333; align-self: flex-start; }
+        .footer { padding: 10px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; gap: 10px; }
+        .icon-btn { color: #0084ff; font-size: 20px; cursor: pointer; }
+        .in-box { flex: 1; background: #242526; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; }
+        input { background: transparent; border: none; outline: none; color: #fff; flex: 1; height: 30px; }
+        #login { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="login">
-        <h1 class="text-4xl font-black mb-8 text-blue-500 italic">PHURAI MAX</h1>
-        <input id="uPh" type="tel" placeholder="আপনার ফোন নম্বর" class="w-full max-w-xs bg-[#111] p-4 rounded-xl mb-4 border border-gray-800 text-center text-white outline-none">
-        <input id="uNm" type="text" placeholder="আপনার নাম" class="w-full max-w-xs bg-[#111] p-4 rounded-xl mb-6 border border-gray-800 text-center text-white outline-none">
-        <button onclick="register()" class="w-full max-w-xs bg-blue-600 p-4 rounded-xl font-bold text-lg">আইডি খুলুন</button>
+<div id="login">
+    <h1 class="text-3xl font-bold text-blue-500 mb-6">PHURAI MAX</h1>
+    <input id="uPh" type="tel" placeholder="ফোন নম্বর" class="w-full max-w-xs bg-[#111] p-4 rounded-xl mb-3 border border-gray-800 text-center">
+    <input id="uNm" type="text" placeholder="আপনার নাম" class="w-full max-w-xs bg-[#111] p-4 rounded-xl mb-6 border border-gray-800 text-center">
+    <button onclick="reg()" class="w-full max-w-xs bg-blue-600 p-4 rounded-xl font-bold">আইডি খুলুন</button>
+</div>
+
+<div class="header">
+    <div class="flex items-center gap-2">
+        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">P</div>
+        <div><h2 class="text-sm font-bold">PHURAI CHAT</h2><p class="text-[9px] text-green-500">ACTIVE NOW</p></div>
     </div>
-
-    <div class="header">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">P</div>
-            <div>
-                <h2 id="topName" class="text-sm font-bold">PHURAI CHAT</h2>
-                <p class="text-[10px] text-green-500">ACTIVE NOW</p>
-            </div>
-        </div>
-        <button onclick="shareApp()" class="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold">বন্ধুকে দিন</button>
+    <div class="flex gap-2">
+        <button onclick="toggleList()" class="bg-gray-800 px-3 py-1 rounded-full text-[10px]">বন্ধু তালিকা</button>
+        <button onclick="share()" class="bg-blue-600 px-3 py-1 rounded-full text-[10px]">বন্ধুকে দিন</button>
     </div>
+</div>
 
-    <div id="cBox" class="chat-box"></div>
+<div id="uList" class="user-list"></div>
+<div id="cBox" class="chat-area"></div>
 
-    <div class="footer">
-        <span class="icon-btn">➕</span>
-        <span class="icon-btn">📷</span>
-        <span class="icon-btn" onclick="document.getElementById('fIn').click()">🖼️</span>
-        <input type="file" id="fIn" class="hidden" accept="image/*">
-        <span class="icon-btn">🎙️</span>
-        <div class="input-wrap"><input id="mIn" type="text" placeholder="মেসেজ..." class="m-in"></div>
-        <button id="sBtn" onclick="sendMsg()" class="text-blue-500 text-2xl font-bold">👍</button>
-    </div>
+<div class="footer">
+    <span class="icon-btn">➕</span>
+    <span class="icon-btn">📷</span>
+    <span class="icon-btn">🖼️</span>
+    <span class="icon-btn">🎙️</span>
+    <div class="in-box"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..."></div>
+    <button onclick="sendMsg('➤')" class="text-blue-500 text-xl font-bold">➤</button>
+    <button onclick="sendMsg('👍')" class="text-2xl">👍</button>
+</div>
 
-    <script>
-        const config = { apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", authDomain: "phurai-3a289.firebaseapp.com", projectId: "phurai-3a289", storageBucket: "phurai-3a289.appspot.com", messagingSenderId: "841766177401", appId: "1:841766177401:web:8f41f0ddf9" };
-        firebase.initializeApp(config);
-        const db = firebase.firestore();
+<script>
+    const conf = { apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", authDomain: "phurai-3a289.firebaseapp.com", projectId: "phurai-3a289", storageBucket: "phurai-3a289.appspot.com", messagingSenderId: "841766177401", appId: "1:841766177401:web:8f41f0ddf9" };
+    firebase.initializeApp(conf); const db = firebase.firestore();
+    let name = localStorage.getItem("n"), phone = localStorage.getItem("p");
 
-        let myName = localStorage.getItem("ph_name");
-        let myPhone = localStorage.getItem("ph_num");
+    if(name && phone) { document.getElementById('login').style.display='none'; start(); }
 
-        if(myName && myPhone) { 
-            document.getElementById('login').style.display = 'none'; 
-            loadMsgs(); 
-        }
+    function reg() {
+        const ph = document.getElementById('uPh').value; const nm = document.getElementById('uNm').value;
+        if(ph && nm) { localStorage.setItem("p", ph); localStorage.setItem("n", nm); 
+        db.collection("users").doc(ph).set({name: nm, phone: ph, lastSeen: Date.now()}); location.reload(); }
+    }
 
-        function register() {
-            const ph = document.getElementById('uPh').value.trim();
-            const nm = document.getElementById('uNm').value.trim();
-            if(ph && nm) {
-                localStorage.setItem("ph_num", ph);
-                localStorage.setItem("ph_name", nm);
-                location.reload();
-            } else { alert("নম্বর ও নাম দুটোই দিন"); }
-        }
+    function start() {
+        setInterval(() => db.collection("users").doc(phone).update({lastSeen: Date.now()}), 10000);
+        loadUsers(); loadMsgs();
+    }
 
-        function sendMsg() {
-            const inp = document.getElementById('mIn');
-            const txt = inp.value.trim() || "👍";
-            db.collection("all_chats").add({
-                name: myName,
-                phone: myPhone,
-                msg: txt,
-                time: firebase.firestore.FieldValue.serverTimestamp()
+    function loadUsers() {
+        db.collection("users").onSnapshot(s => {
+            const list = document.getElementById('uList'); list.innerHTML = "";
+            s.forEach(d => {
+                const u = d.data(); const isOnline = (Date.now() - u.lastSeen) < 30000;
+                list.innerHTML += `<div class="u-item"><div class="dot ${isOnline?'online':''}"></div>
+                <div class="w-6 h-6 bg-blue-900 rounded-full flex items-center justify-center text-[10px]">P</div>
+                বন্ধু ${u.phone} ${u.name} ${isOnline?'<span class="text-green-500 text-[10px]">অনলাইনে আছে</span>':''}</div>`;
             });
-            inp.value = "";
-        }
+        });
+    }
 
-        function loadMsgs() {
-            db.collection("all_chats").orderBy("time", "asc").onSnapshot(snap => {
-                const box = document.getElementById('cBox');
-                box.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const isMe = d.phone === myPhone;
-                    box.innerHTML += `
-                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                            <span class="sender-name">${d.name}</span>
-                            <div class="msg ${isMe ? 'sent' : 'recv'}">${d.msg}</div>
-                        </div>`;
-                });
-                box.scrollTop = box.scrollHeight;
+    function toggleList() { const l = document.getElementById('uList'); l.style.display = l.style.display==='block'?'none':'block'; }
+
+    function sendMsg(t) {
+        const i = document.getElementById('mIn'); const val = t === '➤' ? i.value : t;
+        if(val) { db.collection("chats").add({ n: name, p: phone, m: val, t: Date.now() }); i.value=""; }
+    }
+
+    function loadMsgs() {
+        db.collection("chats").orderBy("t", "asc").onSnapshot(s => {
+            const b = document.getElementById('cBox'); b.innerHTML = "";
+            s.forEach(d => {
+                const m = d.data(); const isMe = m.p === phone;
+                b.innerHTML += `<div class="flex flex-col ${isMe?'items-end':'items-start'}">
+                <span class="text-[9px] text-gray-500 mb-1">${m.n}</span>
+                <div class="msg ${isMe?'sent':'recv'}">${m.m}</div></div>`;
             });
-        }
-
-        function shareApp() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("অ্যাপ লিঙ্ক কপি হয়েছে! বন্ধুকে ইমোতে পাঠিয়ে দিন।");
-        }
-
-        document.getElementById('mIn').oninput = function() {
-            document.getElementById('sBtn').innerHTML = this.value ? "➤" : "👍";
-        };
-    </script>
+            b.scrollTop = b.scrollHeight;
+        });
+    }
+    function share() { navigator.clipboard.writeText(window.location.href); alert("লিঙ্ক কপি হয়েছে!"); }
+</script>
 </body>
-</html>
+        </html>
