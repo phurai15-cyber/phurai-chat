@@ -12,32 +12,39 @@
         body { background: #000; color: var(--text); font-family: sans-serif; height: 100vh; margin: 0; display: flex; justify-content: center; overflow: hidden; }
         .app-window { width: 100%; max-width: 450px; height: 100%; background: var(--bg); display: flex; flex-direction: column; position: relative; border-left: 1px solid #222; border-right: 1px solid #222; }
         #login-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        
         .user-list { display: flex; gap: 10px; overflow-x: auto; padding: 10px; background: #18181b; border-bottom: 1px solid #333; }
         .user-card { min-width: 60px; text-align: center; cursor: pointer; }
         .user-avatar { width: 45px; height: 45px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; border: 2px solid #0084ff; font-weight: bold; font-size: 12px; }
+
         .chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
         .msg { max-width: 75%; padding: 10px 14px; border-radius: 20px; font-size: 15px; }
         .sent { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
         .received { background: var(--panel); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #333; }
+        
         .bottom-bar { padding: 10px 15px 25px 15px; background: var(--bg); border-top: 1px solid #222; }
         .input-box { display: flex; align-items: center; gap: 10px; background: #262629; border-radius: 25px; padding: 5px 5px 5px 15px; }
         .msg-input { flex: 1; background: transparent; border: none; outline: none; color: white; padding: 10px 0; }
     </style>
 </head>
 <body>
-    <div class="app-window"> 
+    <div class="app-window">
         <div id="login-overlay">
             <h1 class="text-3xl font-bold text-blue-500 mb-2">PHURAI PRO</h1>
             <p class="text-gray-400 mb-8 text-sm">আপনার ফোন নম্বর দিন</p>
             <input id="phoneInput" type="tel" placeholder="আপনার ফোন নম্বর" class="w-full bg-[#1c1c1e] p-4 rounded-xl border border-gray-700 text-center mb-4 text-white">
             <button onclick="saveLogin()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-lg">শুরু করুন</button>
         </div>
+
         <div class="p-4 bg-[#18181b] flex justify-between items-center">
             <h2 class="text-lg font-bold text-blue-500">PHURAI PRO</h2>
             <p id="chatting-with" class="text-[10px] text-yellow-500">চ্যাট শুরু করুন</p>
         </div>
+
         <div id="user-list" class="user-list"></div>
+
         <div id="chat-box" class="chat-container"></div>
+
         <div class="bottom-bar">
             <div class="input-box">
                 <input id="msgInput" type="text" placeholder="মেসেজ লিখুন..." class="msg-input" autocomplete="off">
@@ -47,6 +54,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c",
@@ -58,8 +66,13 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
         let myPhone = localStorage.getItem("userPhone");
-        if(myPhone) { document.getElementById('login-overlay').style.display = 'none'; loadUsers(); }
+        if(myPhone) {
+            document.getElementById('login-overlay').style.display = 'none';
+            loadUsers();
+        }
+
         function saveLogin() {
             const phone = document.getElementById('phoneInput').value.trim();
             if(phone.length >= 10) {
@@ -70,6 +83,7 @@
                 loadUsers();
             }
         }
+
         function loadUsers() {
             db.collection("users").onSnapshot(snap => {
                 const list = document.getElementById('user-list');
@@ -77,40 +91,54 @@
                 snap.forEach(doc => {
                     const u = doc.data().phone;
                     if(u !== myPhone) {
-                        list.innerHTML += `<div class="user-card" onclick="startChat('${u}')"><div class="user-avatar">${u.substring(u.length - 3)}</div><div class="text-[8px] text-gray-400">${u}</div></div>`;
+                        list.innerHTML += `
+                            <div class="user-card" onclick="startChat('${u}')">
+                                <div class="user-avatar">${u.substring(u.length - 3)}</div>
+                                <div class="text-[8px] text-gray-400">${u}</div>
+                            </div>`;
                     }
                 });
             });
         }
+
         let chatID = "";
         function startChat(friend) {
             chatID = [myPhone, friend].sort().join("_");
             document.getElementById('chatting-with').innerText = "👤 চ্যাট: " + friend;
             loadMessages();
         }
+
         function sendMsg() {
             const input = document.getElementById('msgInput');
             if(!input.value.trim() || !chatID) return;
-            db.collection("private_messages").add({ room: chatID, sender: myPhone, text: input.value, time: firebase.firestore.FieldValue.serverTimestamp() });
+            db.collection("private_messages").add({
+                room: chatID,
+                sender: myPhone,
+                text: input.value,
+                time: firebase.firestore.FieldValue.serverTimestamp()
+            });
             input.value = "";
         }
+
         let currentSub;
         function loadMessages() {
             if(currentSub) currentSub();
             const box = document.getElementById('chat-box');
-            currentSub = db.collection("private_messages").where("room", "==", chatID).orderBy("time", "asc").onSnapshot(snap => {
-                box.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const isMe = d.sender === myPhone;
-                    box.innerHTML += `<div class="msg ${isMe ? 'sent' : 'received'}">${d.text}</div>`;
+            currentSub = db.collection("private_messages")
+                .where("room", "==", chatID)
+                .orderBy("time", "asc")
+                .onSnapshot(snap => {
+                    box.innerHTML = "";
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        const isMe = d.sender === myPhone;
+                        box.innerHTML += `<div class="msg ${isMe ? 'sent' : 'received'}">${d.text}</div>`;
+                    });
+                    box.scrollTop = box.scrollHeight;
                 });
-                box.scrollTop = box.scrollHeight;
-            });
         }
         document.getElementById('msgInput').addEventListener('keypress', e => { if(e.key === 'Enter') sendMsg(); });
     </script>
 </body>
-            </html>
-
+</html>
 
