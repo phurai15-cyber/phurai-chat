@@ -1,44 +1,46 @@
-<!DOCTYPE html>
+‌<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phurai Pro - Users List</title>
+    <title>PHURAI PRO MAX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         :root { --bg: #0b0b0d; --panel: #1c1c1e; --primary: #0084ff; --text: #ffffff; }
-        body { background: #000; color: var(--text); font-family: sans-serif; height: 100vh; margin: 0; display: flex; justify-content: center; overflow: hidden; }
-        .app-window { width: 100%; max-width: 450px; height: 100%; background: var(--bg); display: flex; flex-direction: column; position: relative; border-left: 1px solid #222; border-right: 1px solid #222; }
-        #login-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        
-        .user-list { display: flex; gap: 10px; overflow-x: auto; padding: 10px; background: #18181b; border-bottom: 1px solid #333; }
-        .user-card { min-width: 60px; text-align: center; cursor: pointer; }
-        .user-avatar { width: 45px; height: 45px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; border: 2px solid #0084ff; font-weight: bold; font-size: 12px; }
-
-        .chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { max-width: 75%; padding: 10px 14px; border-radius: 20px; font-size: 15px; }
-        .sent { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .received { background: var(--panel); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #333; }
-        
-        .bottom-bar { padding: 10px 15px 25px 15px; background: var(--bg); border-top: 1px solid #222; }
-        .input-box { display: flex; align-items: center; gap: 10px; background: #262629; border-radius: 25px; padding: 5px 5px 5px 15px; }
-        .msg-input { flex: 1; background: transparent; border: none; outline: none; color: white; padding: 10px 0; }
+        body { background: #000; color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; margin: 0; display: flex; justify-content: center; overflow: hidden; }
+        .app-window { width: 100%; max-width: 500px; height: 100%; background: var(--bg); display: flex; flex-direction: column; position: relative; border-left: 1px solid #333; border-right: 1px solid #333; }
+        #login-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .user-list { display: flex; gap: 12px; overflow-x: auto; padding: 15px; background: #18181b; border-bottom: 1px solid #333; scrollbar-width: none; }
+        .user-card { min-width: 65px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .user-avatar { width: 50px; height: 50px; background: linear-gradient(45deg, #0084ff, #00c6ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; border: 2px solid #fff; font-weight: bold; box-shadow: 0 4px 10px rgba(0,132,255,0.3); }
+        .chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 18px; position: relative; font-size: 15px; animation: fadeIn 0.3s ease; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sent { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; color: white; }
+        .received { background: #262629; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #333; }
+        .del-btn { font-size: 10px; color: #ff4d4d; margin-top: 5px; display: block; text-align: right; }
+        .bottom-bar { padding: 15px; background: #18181b; border-top: 1px solid #333; }
+        .input-box { display: flex; align-items: center; gap: 10px; background: #262629; border-radius: 30px; padding: 8px 15px; }
+        .msg-input { flex: 1; background: transparent; border: none; outline: none; color: white; padding: 5px; }
     </style>
 </head>
 <body>
     <div class="app-window">
         <div id="login-overlay">
-            <h1 class="text-3xl font-bold text-blue-500 mb-2">PHURAI PRO</h1>
-            <p class="text-gray-400 mb-8 text-sm">আপনার ফোন নম্বর দিন</p>
-            <input id="phoneInput" type="tel" placeholder="আপনার ফোন নম্বর" class="w-full bg-[#1c1c1e] p-4 rounded-xl border border-gray-700 text-center mb-4 text-white">
-            <button onclick="saveLogin()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-lg">শুরু করুন</button>
+            <h1 class="text-4xl font-black text-blue-500 mb-2">PHURAI MAX</h1>
+            <p class="text-gray-400 mb-8 text-sm">নিরাপদ চ্যাটিং শুরু করুন</p>
+            <input id="phoneInput" type="tel" placeholder="আপনার ফোন নম্বর" class="w-full bg-[#1c1c1e] p-4 rounded-2xl border border-gray-700 text-center mb-4 text-white outline-none focus:border-blue-500">
+            <button onclick="saveLogin()" class="w-full bg-blue-600 p-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition">প্রবেশ করুন</button>
         </div>
 
-        <div class="p-4 bg-[#18181b] flex justify-between items-center">
-            <h2 class="text-lg font-bold text-blue-500">PHURAI PRO</h2>
-            <p id="chatting-with" class="text-[10px] text-yellow-500">চ্যাট শুরু করুন</p>
+        <div class="p-4 bg-[#18181b] flex justify-between items-center border-bottom border-[#333]">
+            <div>
+                <h2 class="text-xl font-black text-blue-500">PHURAI MAX</h2>
+                <p id="chatting-with" class="text-[11px] text-green-500 font-bold">কাউকে সিলেক্ট করুন</p>
+            </div>
+            <button onclick="location.reload()" class="text-gray-400">↻</button>
         </div>
 
         <div id="user-list" class="user-list"></div>
@@ -48,14 +50,15 @@
         <div class="bottom-bar">
             <div class="input-box">
                 <input id="msgInput" type="text" placeholder="মেসেজ লিখুন..." class="msg-input" autocomplete="off">
-                <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
+        // আপনার Firebase কনফিগ (একই থাকবে)
         const firebaseConfig = {
             apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c",
             authDomain: "phurai-3a289.firebaseapp.com",
@@ -66,17 +69,15 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const msgSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
 
         let myPhone = localStorage.getItem("userPhone");
-        if(myPhone) {
-            document.getElementById('login-overlay').style.display = 'none';
-            loadUsers();
-        }
+        if(myPhone) { document.getElementById('login-overlay').style.display = 'none'; loadUsers(); }
 
         function saveLogin() {
             const phone = document.getElementById('phoneInput').value.trim();
             if(phone.length >= 10) {
-                db.collection("users").doc(phone).set({ phone: phone });
+                db.collection("users").doc(phone).set({ phone: phone, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
                 localStorage.setItem("userPhone", phone);
                 myPhone = phone;
                 document.getElementById('login-overlay').style.display = 'none';
@@ -94,7 +95,7 @@
                         list.innerHTML += `
                             <div class="user-card" onclick="startChat('${u}')">
                                 <div class="user-avatar">${u.substring(u.length - 3)}</div>
-                                <div class="text-[8px] text-gray-400">${u}</div>
+                                <div class="text-[10px] text-gray-300">${u}</div>
                             </div>`;
                     }
                 });
@@ -124,21 +125,37 @@
         function loadMessages() {
             if(currentSub) currentSub();
             const box = document.getElementById('chat-box');
-            currentSub = db.collection("private_messages")
-                .where("room", "==", chatID)
-                .orderBy("time", "asc")
-                .onSnapshot(snap => {
-                    box.innerHTML = "";
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        const isMe = d.sender === myPhone;
-                        box.innerHTML += `<div class="msg ${isMe ? 'sent' : 'received'}">${d.text}</div>`;
-                    });
-                    box.scrollTop = box.scrollHeight;
+            currentSub = db.collection("private_messages").where("room", "==", chatID).onSnapshot(snap => {
+                let messages = [];
+                snap.forEach(doc => { 
+                    let d = doc.data();
+                    d.id = doc.id;
+                    messages.push(d); 
                 });
+                messages.sort((a, b) => (a.time?.seconds || 0) - (b.time?.seconds || 0));
+                
+                const oldMsgCount = box.children.length;
+                box.innerHTML = "";
+                messages.forEach(d => {
+                    const isMe = d.sender === myPhone;
+                    box.innerHTML += `
+                        <div class="msg ${isMe ? 'sent' : 'received'}" onclick="${isMe ? `deleteMsg('${d.id}')` : ''}">
+                            ${d.text}
+                            ${isMe ? '<span class="del-btn">মুছুন</span>' : ''}
+                        </div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+                if(messages.length > oldMsgCount) msgSound.play();
+            });
         }
+
+        function deleteMsg(id) {
+            if(confirm("মেসেজটি কি সবার জন্য মুছে ফেলতে চান?")) {
+                db.collection("private_messages").doc(id).delete();
+            }
+        }
+
         document.getElementById('msgInput').addEventListener('keypress', e => { if(e.key === 'Enter') sendMsg(); });
     </script>
 </body>
 </html>
-
