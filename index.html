@@ -1,4 +1,4 @@
-‍<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -39,7 +39,7 @@
     </div>
     <div id="step2" class="w-full flex flex-col items-center hidden">
         <input id="otpCode" type="number" placeholder="কোড দিন">
-        <input id="userName" type="text" placeholder="আপনার সঠিক নাম">
+        <input id="userName" type="text" placeholder="আপনার নাম">
         <button onclick="verifyOTP()" class="bg-green-600 w-full max-w-[300px] p-4 rounded-xl font-bold">লগইন করুন</button>
     </div>
 </div>
@@ -47,30 +47,34 @@
 <div class="header">
     <div class="flex items-center gap-2">
         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">P</div>
-        <div><h2 id="chatTitle" class="text-sm font-bold">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold uppercase tracking-widest">Active Now</p></div>
+        <div><h2 id="chatTitle" class="text-sm font-bold uppercase">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold italic uppercase">Active Now</p></div>
     </div>
     <button onclick="navigator.clipboard.writeText(window.location.href); alert('লিঙ্ক কপি হয়েছে!')" class="bg-blue-600 px-4 py-1 rounded-full text-[10px] font-bold">বন্ধুকে দিন</button>
 </div>
 
-<div class="user-list-container">
-    <div id="uList" class="user-list">
-        </div>
-</div>
-
+<div class="user-list-container"><div id="uList" class="user-list"></div></div>
 <div id="cBox" class="chat-box"></div>
 
 <div class="footer">
-    <span class="text-blue-500 text-2xl cursor-pointer">➕</span>
-    <span class="text-blue-500 text-2xl cursor-pointer">📷</span>
-    <span class="text-blue-500 text-2xl cursor-pointer">🖼️</span>
-    <span class="text-blue-500 text-2xl cursor-pointer">🎙️</span>
-    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; width:100%; color:white; margin:0; padding:0; text-align:left;"></div>
+    <span class="text-blue-500 text-2xl">➕</span>
+    <span class="text-blue-500 text-2xl">📷</span>
+    <span class="text-blue-500 text-2xl">🖼️</span>
+    <span class="text-blue-500 text-2xl">🎙️</span>
+    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; width:100%; color:white; outline:none;"></div>
     <button onclick="sendMsg('➤')" class="text-blue-500 font-bold text-2xl">➤</button>
     <button onclick="sendMsg('👍')" class="text-3xl">👍</button>
 </div>
 
 <script>
-    const conf = { apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", authDomain: "phurai-3a289.firebaseapp.com", projectId: "phurai-3a289", storageBucket: "phurai-3a289.appspot.com", messagingSenderId: "841766177401", appId: "1:841766177401:web:8f41f0ddf9" };
+    // আপনার অরিজিনাল ফায়ারবেস কনফিগারেশন
+    const conf = { 
+        apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", 
+        authDomain: "phurai-3a289.firebaseapp.com", 
+        projectId: "phurai-3a289", 
+        storageBucket: "phurai-3a289.appspot.com", 
+        messagingSenderId: "841766177401", 
+        appId: "1:841766177401:web:8f41f0ddf9" 
+    };
     firebase.initializeApp(conf);
     const auth = firebase.auth(); const db = firebase.firestore();
     let confirmationResult;
@@ -81,6 +85,7 @@
 
     function sendOTP() {
         const ph = document.getElementById('phoneNum').value;
+        if(!ph.startsWith('+')) return alert("নম্বরটি +88 দিয়ে শুরু করুন");
         auth.signInWithPhoneNumber(ph, window.recaptchaVerifier).then(res => {
             confirmationResult = res;
             document.getElementById('step1').classList.add('hidden');
@@ -106,7 +111,7 @@
     function loadUsers() {
         db.collection("u").onSnapshot(s => {
             const list = document.getElementById('uList');
-            list.innerHTML = `<div class="u-item ${targetP=='group'?'active-user':''}" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="relative"><div class="u-img">G</div></div><span class="text-[10px] mt-1 font-bold">গ্রুপ</span></div>`;
+            list.innerHTML = `<div class="u-item ${targetP=='group'?'active-user':''}" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="u-img">G</div><span class="text-[10px] mt-1 font-bold">গ্রুপ</span></div>`;
             s.forEach(d => {
                 const u = d.data(); if(u.p === myP) return;
                 const isOnline = (Date.now() - u.l) < 30000;
