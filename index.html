@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+‍<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PHURAI MESSENGER PRO</title>
+    <title>PHURAI CHAT PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -12,8 +12,8 @@
         body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; margin: 0; overflow: hidden; }
         .header { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; }
         .user-list { padding: 10px; background: #111; border-bottom: 1px solid #222; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
-        .u-img { width: 55px; height: 55px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; font-size: 20px; }
-        .active-user { border: 2px solid #fff; }
+        .u-img { width: 55px; height: 55px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; font-size: 20px; border: 2px solid transparent; }
+        .active-user { border-color: #fff; }
         .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .msg { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 14px; }
         .sent { background: #0084ff; align-self: flex-end; }
@@ -34,7 +34,7 @@
     </div>
     <div id="step2" class="w-full flex flex-col items-center hidden">
         <input id="otpCode" type="number" placeholder="কোড দিন">
-        <input id="userName" type="text" placeholder="আপনার নাম">
+        <input id="userName" type="text" placeholder="আপনার সঠিক নাম">
         <button onclick="verifyOTP()" class="bg-green-600 w-full max-w-[300px] p-4 rounded-xl font-bold">লগইন করুন</button>
     </div>
 </div>
@@ -42,7 +42,7 @@
 <div class="header">
     <div class="flex items-center gap-2">
         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">P</div>
-        <div><h2 id="chatTitle" class="text-sm font-bold uppercase">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold italic">ACTIVE NOW</p></div>
+        <div><h2 id="chatTitle" class="text-sm font-bold">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold">ACTIVE NOW</p></div>
     </div>
     <button onclick="navigator.clipboard.writeText(window.location.href); alert('লিঙ্ক কপি হয়েছে!')" class="bg-blue-600 px-4 py-1 rounded-full text-[10px] font-bold">বন্ধুকে দিন</button>
 </div>
@@ -55,7 +55,7 @@
     <span class="text-blue-500 text-2xl">📷</span>
     <span class="text-blue-500 text-2xl">🖼️</span>
     <span class="text-blue-500 text-2xl">🎙️</span>
-    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; width:100%;"></div>
+    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; width:100%; color:white;"></div>
     <button onclick="sendMsg('➤')" class="text-blue-500 font-bold text-2xl">➤</button>
     <button onclick="sendMsg('👍')" class="text-3xl">👍</button>
 </div>
@@ -100,7 +100,7 @@
             list.innerHTML = `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="u-img ${targetP=='group'?'active-user':''}">G</div><span class="text-[10px] mt-1 font-bold">গ্রুপ</span></div>`;
             s.forEach(d => {
                 const u = d.data(); if(u.p === myP) return;
-                list.innerHTML += `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('${u.p}', '${u.n}')"><div class="u-img ${targetP==u.p?'active-user':''}">P</div><span class="text-[10px] mt-1">${u.n}</span></div>`;
+                list.innerHTML += `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('${u.p}', '${u.n}')"><div class="u-img ${targetP==u.p?'active-user':''}">P</div><span class="text-[10px] mt-1 font-bold">${u.n}</span></div>`;
             });
         });
     }
@@ -125,4 +125,4 @@
     }
 </script>
 </body>
-</html>‍
+</html>
