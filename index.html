@@ -9,34 +9,35 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; margin: 0; }
+        body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; margin: 0; overflow: hidden; }
         .header { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; }
-        .user-list { padding: 10px; background: #111; border-bottom: 1px solid #222; display: flex; gap: 12px; overflow-x: auto; }
-        .u-img { width: 55px; height: 55px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid transparent; position: relative; }
-        .active { border-color: #fff; }
+        .user-list { padding: 10px; background: #111; border-bottom: 1px solid #222; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
+        .u-img { width: 55px; height: 55px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid transparent; position: relative; font-size: 20px; }
+        .active-user { border-color: #fff; background: #0056b3; }
+        .online-dot { width: 12px; height: 12px; background: #22c55e; border-radius: 50%; border: 2px solid #000; position: absolute; bottom: 2px; right: 2px; }
         .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 14px; }
+        .msg { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 14px; line-height: 1.4; }
         .sent { background: #0084ff; align-self: flex-end; }
         .recv { background: #333; align-self: flex-start; }
-        .footer { padding: 10px; border-top: 1px solid #222; display: flex; align-items: center; gap: 10px; }
+        .footer { padding: 10px; border-top: 1px solid #222; display: flex; align-items: center; gap: 10px; background: #000; }
+        .in-box { flex: 1; background: #242526; border-radius: 20px; padding: 8px 15px; display: flex; align-items: center; }
+        input { background: transparent; border: none; outline: none; color: #fff; flex: 1; }
         #login-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        input { background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; width: 100%; max-width: 300px; text-align: center; margin-bottom: 10px; outline: none; }
+        .login-input { background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; width: 100%; max-width: 300px; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
-    <h1 class="text-3xl font-black text-blue-500 mb-8 italic">PHURAI MAX</h1>
-    
+    <h1 class="text-4xl font-black text-blue-500 mb-8 italic">PHURAI MAX</h1>
     <div id="step1" class="w-full flex flex-col items-center">
-        <input id="phoneNum" type="tel" placeholder="+88017XXXXXXXX">
+        <input id="phoneNum" type="tel" class="login-input" placeholder="+88017XXXXXXXX">
         <div id="recaptcha-container"></div>
         <button onclick="sendOTP()" class="bg-blue-600 w-full max-w-[300px] p-4 rounded-xl font-bold mt-4">কোড পাঠান</button>
     </div>
-
     <div id="step2" class="w-full flex flex-col items-center hidden">
-        <input id="otpCode" type="number" placeholder="ভেরিফাই কোড দিন">
-        <input id="userName" type="text" placeholder="আপনার নাম">
+        <input id="otpCode" type="number" class="login-input" placeholder="ভেরিফাই কোড দিন">
+        <input id="userName" type="text" class="login-input" placeholder="আপনার সঠিক নাম">
         <button onclick="verifyOTP()" class="bg-green-600 w-full max-w-[300px] p-4 rounded-xl font-bold">ভেরিফাই ও লগইন</button>
     </div>
 </div>
@@ -44,19 +45,20 @@
 <div class="header">
     <div class="flex items-center gap-2">
         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">P</div>
-        <div><h2 id="chatTitle" class="text-sm font-bold uppercase">গ্রুপ চ্যাট</h2><p class="text-[9px] text-green-500 font-bold">ACTIVE</p></div>
+        <div><h2 id="chatTitle" class="text-sm font-bold uppercase">গ্রুপ চ্যাট</h2><p id="chatStatus" class="text-[9px] text-green-500 font-bold">সবাই লাইভ আছে</p></div>
     </div>
-    <button onclick="alert('লিঙ্ক কপি হয়েছে!')" class="bg-blue-600 px-4 py-1 rounded-full text-[10px] font-bold">বন্ধুকে দিন</button>
+    <button onclick="navigator.clipboard.writeText(window.location.href); alert('লিঙ্ক কপি হয়েছে!')" class="bg-blue-600 px-4 py-1 rounded-full text-[10px] font-bold">বন্ধুকে দিন</button>
 </div>
 
 <div id="uList" class="user-list"></div>
 <div id="cBox" class="chat-box"></div>
 
 <div class="footer">
-    <div class="flex-1 bg-[#242526] rounded-full px-4 py-2 flex items-center">
-        <input id="mIn" type="text" placeholder="মেসেজ লিখুন..." style="background:transparent; border:none; margin:0; text-align:left;">
-    </div>
+    <span class="text-blue-500 text-2xl cursor-pointer">➕</span>
+    <span class="text-blue-500 text-2xl cursor-pointer">📷</span>
+    <div class="in-box"><input id="mIn" type="text" placeholder="মেসেজ লিখুন..."></div>
     <button onclick="sendMsg('➤')" class="text-blue-500 font-bold text-2xl">➤</button>
+    <button onclick="sendMsg('👍')" class="text-3xl">👍</button>
 </div>
 
 <script>
@@ -78,22 +80,19 @@
             confirmationResult = res;
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
-            alert("আপনার নম্বরে কোড পাঠানো হয়েছে।");
-        }).catch(err => alert("ভুল নম্বর বা সমস্যা হয়েছে: " + err.message));
+        }).catch(err => alert("সমস্যা: " + err.message));
     }
 
     function verifyOTP() {
         const code = document.getElementById('otpCode').value;
         const name = document.getElementById('userName').value;
         if(!name) return alert("নাম লিখুন");
-        
         confirmationResult.confirm(code).then(result => {
-            const user = result.user;
-            localStorage.setItem("p", user.phoneNumber);
+            localStorage.setItem("p", result.user.phoneNumber);
             localStorage.setItem("n", name);
-            db.collection("u").doc(user.phoneNumber).set({n: name, p: user.phoneNumber, l: Date.now()});
+            db.collection("u").doc(result.user.phoneNumber).set({n: name, p: result.user.phoneNumber, l: Date.now()});
             location.reload();
-        }).catch(() => alert("ভুল কোড দিয়েছেন।"));
+        }).catch(() => alert("ভুল কোড"));
     }
 
     function startApp() {
@@ -104,10 +103,11 @@
     function loadUsers() {
         db.collection("u").onSnapshot(s => {
             const list = document.getElementById('uList');
-            list.innerHTML = `<div class="u-circle flex flex-col items-center min-w-[65px]" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="u-img ${targetP=='group'?'active':''}">G</div><span class="text-[10px] mt-1">গ্রুপ</span></div>`;
+            list.innerHTML = `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('group', 'গ্রুপ চ্যাট')"><div class="u-img ${targetP=='group'?'active-user':''}">G</div><span class="text-[10px] mt-1 font-bold">গ্রুপ</span></div>`;
             s.forEach(d => {
                 const u = d.data(); if(u.p === myP) return;
-                list.innerHTML += `<div class="u-circle flex flex-col items-center min-w-[65px]" onclick="setChat('${u.p}', '${u.n}')"><div class="u-img ${targetP==u.p?'active':''}">P</div><span class="text-[10px] mt-1">${u.n}</span></div>`;
+                const isOn = (Date.now() - u.l) < 30000;
+                list.innerHTML += `<div class="flex flex-col items-center min-w-[65px]" onclick="setChat('${u.p}', '${u.n}')"><div class="u-img ${targetP==u.p?'active-user':''}">P ${isOn?'<div class="online-dot"></div>':''}</div><span class="text-[10px] mt-1">${u.n}</span></div>`;
             });
         });
     }
@@ -115,7 +115,7 @@
     function setChat(p, n) { targetP = p; document.getElementById('chatTitle').innerText = n; loadMessages(); }
 
     function sendMsg(t) {
-        const i = document.getElementById('mIn'); const txt = i.value;
+        const i = document.getElementById('mIn'); const txt = t === '➤' ? i.value : t;
         if(txt) { db.collection("m").add({ f: myP, fn: myN, t: targetP, m: txt, ts: Date.now() }); i.value=""; }
     }
 
@@ -125,7 +125,7 @@
             s.forEach(d => {
                 const x = d.data();
                 const isForMe = (targetP === 'group' && x.t === 'group') || (x.f === myP && x.t === targetP) || (x.f === targetP && x.t === myP);
-                if(isForMe) { b.innerHTML += `<div class="flex flex-col ${x.f===myP?'items-end':'items-start'}"><span class="text-[9px] text-gray-500">${x.fn}</span><div class="msg ${x.f===myP?'sent':'recv'}">${x.m}</div></div>`; }
+                if(isForMe) { b.innerHTML += `<div class="flex flex-col ${x.f===myP?'items-end':'items-start'}"><span class="text-[9px] text-gray-500 mb-1">${x.fn}</span><div class="msg ${x.f===myP?'sent':'recv'}">${x.m}</div></div>`; }
             });
             b.scrollTop = b.scrollHeight;
         });
