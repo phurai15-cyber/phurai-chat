@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+‍<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -66,7 +66,6 @@
 </div>
 
 <script>
-    // আপনার অরিজিনাল ফায়ারবেস কনফিগারেশন
     const conf = { 
         apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", 
         authDomain: "phurai-3a289.firebaseapp.com", 
@@ -85,7 +84,7 @@
 
     function sendOTP() {
         const ph = document.getElementById('phoneNum').value;
-        if(!ph.startsWith('+')) return alert("নম্বরটি +88 দিয়ে শুরু করুন");
+        if(!ph.startsWith('+88')) return alert("নম্বরটি +88 দিয়ে শুরু করুন (যেমন: +88017...)");
         auth.signInWithPhoneNumber(ph, window.recaptchaVerifier).then(res => {
             confirmationResult = res;
             document.getElementById('step1').classList.add('hidden');
