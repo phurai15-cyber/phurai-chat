@@ -66,6 +66,7 @@
 </div>
 
 <script>
+    // ফরিদ ভাই, আপনার আসল API Key এখানে শক্তভাবে বসানো হয়েছে
     const conf = { 
         apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", 
         authDomain: "phurai-3a289.firebaseapp.com", 
@@ -84,7 +85,7 @@
 
     function sendOTP() {
         const ph = document.getElementById('phoneNum').value;
-        if(!ph.startsWith('+88')) return alert("নম্বরটি +88 দিয়ে শুরু করুন (যেমন: +88017...)");
+        if(!ph.startsWith('+')) return alert("নম্বরটি +88 দিয়ে শুরু করুন");
         auth.signInWithPhoneNumber(ph, window.recaptchaVerifier).then(res => {
             confirmationResult = res;
             document.getElementById('step1').classList.add('hidden');
