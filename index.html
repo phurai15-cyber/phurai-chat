@@ -1,123 +1,179 @@
-‍<!DOCTYPE html>
+‌<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PHURAI MESSENGER PRO</title>
+    
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root { --messenger-blue: #0084ff; --bg-black: #000000; --input-bg: #242526; }
         body { background: var(--bg-black); color: white; font-family: -apple-system, sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; margin: 0; }
         
         /* Header */
-        .header { padding: 10px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .header { padding: 12px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.9); z-index: 10; }
         
         /* Chat Area */
-        .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 100px; }
-        .msg { max-width: 70%; padding: 12px 16px; border-radius: 22px; font-size: 15px; position: relative; line-height: 1.4; }
+        .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 110px; scroll-behavior: smooth; }
+        .msg { max-width: 75%; padding: 12px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; }
         .sent { background: var(--messenger-blue); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .recv { background: #303030; align-self: flex-start; border-bottom-left-radius: 4px; }
-        
-        /* Bottom Bar (Like Screenshot 5144.jpg) */
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-black); padding: 8px 12px calc(20px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 15px; border-top: 1px solid #222; }
-        .icon-grp { display: flex; gap: 18px; color: var(--messenger-blue); font-size: 22px; }
+        .recv { background: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user-name { font-size: 10px; color: #aaa; margin-bottom: 2px; margin-left: 5px; }
+
+        /* Bottom Bar (Messenger Style) */
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-black); padding: 10px 12px calc(20px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; border-top: 1px solid #222; }
+        .icon-btn { color: var(--messenger-blue); font-size: 24px; cursor: pointer; transition: 0.2s; }
+        .icon-btn:active { transform: scale(0.8); }
         .input-wrapper { flex: 1; background: var(--input-bg); border-radius: 25px; display: flex; align-items: center; padding: 0 15px; height: 42px; }
         .m-input { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 16px; }
-        .send-btn { color: var(--messenger-blue); font-size: 25px; transition: transform 0.2s; }
-        .send-btn:active { transform: scale(0.8); }
+        .send-btn { color: var(--messenger-blue); font-size: 26px; font-weight: bold; cursor: pointer; }
 
-        /* Reaction Animation */
-        .heart { position: absolute; font-size: 12px; bottom: -10px; right: 10px; background: #222; border-radius: 10px; padding: 2px 5px; display: none; }
-        .liked .heart { display: block; }
-
+        /* Login Screen */
         #login { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
     </style>
 </head>
 <body>
 
     <div id="login">
-        <h1 class="text-4xl font-black mb-8 text-blue-500">PHURAI MAX</h1>
-        <input id="pName" type="text" placeholder="আপনার নাম" class="w-full max-w-xs bg-[#111] p-4 rounded-2xl mb-6 border border-gray-800 text-center text-white outline-none">
-        <button onclick="saveUser()" class="w-full max-w-xs bg-blue-600 p-4 rounded-2xl font-bold text-lg">শুরু করুন</button>
+        <h1 class="text-5xl font-black mb-10 text-blue-500 italic">PHURAI</h1>
+        <input id="userName" type="text" placeholder="আপনার নাম লিখুন" class="w-full max-w-xs bg-[#111] p-5 rounded-2xl mb-6 border border-gray-800 text-center text-white text-lg outline-none focus:border-blue-500">
+        <button onclick="startApp()" class="w-full max-w-xs bg-blue-600 p-4 rounded-2xl font-bold text-xl active:scale-95 transition">চ্যাট শুরু করুন</button>
     </div>
 
     <div class="header">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">P</div>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-700 to-blue-400 flex items-center justify-center font-bold text-xl">P</div>
             <div>
-                <h2 class="text-sm font-bold">PHURAI CHAT</h2>
-                <p class="text-[10px] text-green-500">Active Now</p>
+                <h2 class="text-sm font-bold tracking-wide">PHURAI MAX</h2>
+                <div class="flex items-center gap-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <p class="text-[10px] text-green-500 font-bold uppercase">Active Now</p>
+                </div>
             </div>
         </div>
-        <div class="icon-grp text-lg">
-            <span>📞</span> <span>📹</span> <span>ℹ️</span>
-        </div>
+        <button onclick="shareLink()" class="bg-blue-600 px-4 py-1.5 rounded-full text-xs font-black active:scale-90 transition">বন্ধুকে দিন</button>
     </div>
 
-    <div id="cBox" class="chat-box"></div>
+    <div id="chatBox" class="chat-box"></div>
 
     <div class="footer">
-        <div class="icon-grp">
-            <span>➕</span> <span>📷</span> <span onclick="alert('গ্যালারি ওপেন হচ্ছে...')">🖼️</span> <span>🎙️</span>
-        </div>
+        <span class="icon-btn">➕</span>
+        <span class="icon-btn">📷</span>
+        <span class="icon-btn" onclick="document.getElementById('imgInput').click()">🖼️</span>
+        <input type="file" id="imgInput" class="hidden" accept="image/*">
+        <span class="icon-btn">🎙️</span>
+        
         <div class="input-wrapper">
-            <input id="mInp" type="text" placeholder="মেসেজ..." class="m-input" oninput="toggleBtn()">
-            <span class="text-xl">😊</span>
+            <input id="msgInp" type="text" placeholder="মেসেজ লিখুন..." class="m-input" oninput="updateBtn()">
+            <span class="text-xl ml-2">😊</span>
         </div>
-        <div id="sendAction" onclick="handleSend()" class="send-btn">👍</div>
+        
+        <div id="actionBtn" onclick="handleSend()" class="send-btn">👍</div>
     </div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", authDomain: "phurai-3a289.firebaseapp.com", projectId: "phurai-3a289", storageBucket: "phurai-3a289.appspot.com", messagingSenderId: "841766177401", appId: "1:841766177401:web:8f41f0ddf9" };
+        // Firebase কনফিগারেশন
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAo-AtxN0eLgtN-HznpTq2c", 
+            authDomain: "phurai-3a289.firebaseapp.com", 
+            projectId: "phurai-3a289", 
+            storageBucket: "phurai-3a289.appspot.com", 
+            messagingSenderId: "841766177401", 
+            appId: "1:841766177401:web:8f41f0ddf9" 
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        let myName = localStorage.getItem("uName");
+        
+        let currentUserName = localStorage.getItem("phurai_user");
 
-        if(myName) { document.getElementById('login').style.display='none'; loadMessages(); }
-
-        function saveUser() {
-            const n = document.getElementById('pName').value.trim();
-            if(n) { localStorage.setItem("uName", n); location.reload(); }
+        // অ্যাপ শুরু
+        if(currentUserName) {
+            document.getElementById('login').style.display = 'none';
+            loadMessages();
         }
 
-        function toggleBtn() {
-            const val = document.getElementById('mInp').value.trim();
-            document.getElementById('sendAction').innerHTML = val ? "➤" : "👍";
+        function startApp() {
+            const name = document.getElementById('userName').value.trim();
+            if(name) {
+                localStorage.setItem("phurai_user", name);
+                location.reload();
+            } else {
+                alert("দয়া করে আপনার নাম লিখুন");
+            }
         }
 
+        // টাইপ করলে বাটন পরিবর্তন
+        function updateBtn() {
+            const val = document.getElementById('msgInp').value.trim();
+            document.getElementById('actionBtn').innerHTML = val ? "➤" : "👍";
+        }
+
+        // মেসেজ পাঠানো (সারাজীবন থাকবে)
         function handleSend() {
-            const inp = document.getElementById('mInp');
-            const text = inp.value.trim() || "👍"; // কিছু না থাকলে লাইক যাবে
-            db.collection("all_msgs").add({
-                user: myName,
-                msg: text,
-                time: firebase.firestore.FieldValue.serverTimestamp()
+            const inp = document.getElementById('msgInp');
+            const messageText = inp.value.trim() || "👍";
+            
+            db.collection("messages").add({
+                sender: currentUserName,
+                text: messageText,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
+            
             inp.value = "";
-            toggleBtn();
+            updateBtn();
         }
 
+        // মেসেজ লোড করা
         function loadMessages() {
-            const box = document.getElementById('cBox');
-            db.collection("all_msgs").orderBy("time", "asc").onSnapshot(snap => {
+            const box = document.getElementById('chatBox');
+            db.collection("messages").orderBy("timestamp", "asc").onSnapshot(snapshot => {
                 box.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const isMe = d.user === myName;
-                    const div = document.createElement('div');
-                    div.className = `msg ${isMe ? 'sent' : 'recv'}`;
-                    div.innerHTML = `${d.msg} <span class="heart">❤️</span>`;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const isMe = data.sender === currentUserName;
                     
-                    // ডাবল ট্যাপে হার্ট রিয়েকশন (Screenshot 5144.jpg এর মতো)
-                    div.ondblclick = () => div.classList.toggle('liked');
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `msg ${isMe ? 'sent' : 'recv'}`;
                     
-                    box.appendChild(div);
+                    // মেসেজ বডি
+                    let content = ``;
+                    if(!isMe) content += `<div class="user-name">${data.sender}</div>`;
+                    content += `<div>${data.text}</div>`;
+                    
+                    msgDiv.innerHTML = content;
+                    
+                    // ডিলিট করার সুবিধা (নিজেদের জন্য)
+                    if(isMe) {
+                        msgDiv.onclick = () => {
+                            if(confirm("এই মেসেজটি সবার জন্য ডিলিট করবেন?")) doc.ref.delete();
+                        };
+                    }
+                    
+                    box.appendChild(msgDiv);
                 });
                 box.scrollTop = box.scrollHeight;
             });
         }
+
+        // লিঙ্ক শেয়ার (ইমো/মেসেঞ্জারের জন্য)
+        function shareLink() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("লিঙ্ক কপি হয়েছে! এখন আপনার বন্ধুদের ইমো বা মেসেঞ্জারে পাঠিয়ে দিন।");
+            });
+        }
+
+        // এন্টার চাপলে মেসেজ যাবে
+        document.getElementById('msgInp').addEventListener("keypress", (e) => {
+            if (e.key === "Enter") handleSend();
+        });
     </script>
 </body>
 </html>
