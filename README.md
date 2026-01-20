@@ -1,0 +1,68 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+
+// ফুরাই অ্যাপের মূল স্ক্রিন
+export default function FuraiApp() {
+  const [message, setMessage] = useState('');
+  const [chatList, setChatList] = useState(['স্বাগতম ফুরাই অ্যাপে!']);
+
+  const sendMessage = () => {
+    if(message.trim()) {
+      setChatList([...chatList, message]);
+      setMessage('');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* হেডার */}
+      <View style={styles.header}>
+        <Text style={styles.logo}>furai</Text>
+      </View>
+
+      <ScrollView>
+        {/* প্রোফাইল সেকশন */}
+        <View style={styles.cover} />
+        <View style={styles.profileArea}>
+          <View style={styles.profilePic} />
+          <Text style={styles.userName}>ফুরাই ইউজার</Text>
+        </View>
+
+        {/* চ্যাট এরিয়া */}
+        <View style={styles.chatContainer}>
+          {chatList.map((msg, index) => (
+            <Text key={index} style={styles.chatBubble}>{msg}</Text>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* মেসেজ ইনপুট বক্স */}
+      <View style={styles.inputArea}>
+        <TextInput 
+          style={styles.input} 
+          placeholder="মেসেজ লিখুন..." 
+          value={message}
+          onChangeText={setMessage}
+        />
+        <TouchableOpacity onPress={sendMessage} style={styles.sendBtn}>
+          <Text style={{color: 'white'}}>পাঠান</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f0f2f5' },
+  header: { height: 60, backgroundColor: 'white', justifyContent: 'center', paddingLeft: 20, elevation: 5 },
+  logo: { color: '#0084ff', fontSize: 28, fontWeight: 'bold' },
+  cover: { height: 150, backgroundColor: '#0084ff' },
+  profileArea: { alignItems: 'center', marginTop: -50 },
+  profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd', borderStroke: 3, borderColor: 'white' },
+  userName: { fontSize: 22, fontWeight: 'bold', marginVertical: 10 },
+  chatContainer: { padding: 20 },
+  chatBubble: { backgroundColor: 'white', padding: 10, borderRadius: 10, marginBottom: 5, alignSelf: 'flex-start' },
+  inputArea: { flexDirection: 'row', padding: 10, backgroundColor: 'white' },
+  input: { flex: 1, backgroundColor: '#f0f2f5', borderRadius: 20, paddingHorizontal: 15 },
+  sendBtn: { backgroundColor: '#0084ff', padding: 10, borderRadius: 20, marginLeft: 10 }
+});
